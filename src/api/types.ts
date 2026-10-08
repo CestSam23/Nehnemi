@@ -77,7 +77,7 @@ export type IniciarSesionRespuesta = UsuarioGobierno
 
 export type SesionRespuesta = UsuarioGobierno
 
-export type DimensionPanorama = {
+export type DimensionDisponibilidad = {
   disponible: boolean
   motivo?: string
 }
@@ -90,7 +90,9 @@ export type DistribucionDimension = {
 
 export type PuntoVentasEv = {
   periodo: string
-  valor: number
+  vehiculos: number
+  unidad: string
+  fuente: string
 }
 
 export type VentasEv = {
@@ -154,7 +156,7 @@ export type PanoramaRespuesta = {
   ventas_ev: VentasEv
   zonas_prioritarias: ZonaPrioritaria[]
   fuentes_documentadas: number
-  dimensiones: Record<DimensionIndicador, DimensionPanorama>
+  dimensiones: Record<DimensionIndicador, DimensionDisponibilidad>
 }
 
 export type ZonaListado = {
