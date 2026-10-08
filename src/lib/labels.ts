@@ -5,6 +5,7 @@ import type {
   MotivoSolicitud,
   NivelConfianza,
   PrioridadRecomendacion,
+  TipoProcedencia,
   RolGobierno,
   TipoBarreraDiagnosticada,
   TipoZona,
@@ -87,4 +88,11 @@ export const CONFIANZA_LABELS: Record<NivelConfianza, string> = {
   BAJA: 'Confianza baja',
   MEDIA: 'Confianza media',
   ALTA: 'Confianza alta',
+}
+
+export const PROCEDENCIA_LABELS: Record<TipoProcedencia, string> = {
+  OFICIAL: 'Oficial',
+  NEHNEMI: 'Nehnemi',
+  SIMULADO: 'Simulado',
+  DERIVADO: 'Derivado',
 }

@@ -5,6 +5,7 @@ export const queryKeys = {
   panorama: ['panorama'] as const,
   mapa: (tipo: string, dimension: string) => ['mapa', tipo, dimension] as const,
   estaciones: ['estaciones'] as const,
+  fuentes: ['fuentes'] as const,
   solicitudes: {
     todas: ['solicitudes'] as const,
     listado: (params: SolicitudesParams) =>

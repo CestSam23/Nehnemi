@@ -49,3 +49,15 @@ export function iniciales(nombre: string) {
   const ultima = fuente.length > 1 ? fuente[fuente.length - 1][0] : ''
   return `${primera}${ultima}`.toUpperCase()
 }
+
+const fechas = new Intl.DateTimeFormat('es-MX', {
+  dateStyle: 'medium',
+  timeZone: 'UTC',
+})
+
+export function formatearFecha(valor: string | null) {
+  if (!valor) return '—'
+  const fecha = new Date(valor)
+  if (Number.isNaN(fecha.getTime())) return valor
+  return fechas.format(fecha)
+}
