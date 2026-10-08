@@ -1,4 +1,13 @@
-import type { DimensionIndicador, NivelConfianza } from '@/api/types'
+import type {
+  DimensionIndicador,
+  NivelConfianza,
+  RolGobierno,
+} from '@/api/types'
+
+export const ROL_LABELS: Record<RolGobierno, string> = {
+  ANALISTA: 'Analista',
+  ADMINISTRADOR: 'Administrador',
+}
 
 export const DIMENSION_LABELS: Record<DimensionIndicador, string> = {
   ADOPCION: 'Adopción',

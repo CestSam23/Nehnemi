@@ -42,6 +42,8 @@
   --color-disabled: var(--disabled);
   --color-disabled-foreground: var(--disabled-foreground);
   --color-lima-soft: var(--lima-soft);
+  --color-error-surface: var(--error-surface);
+  --color-error-text: var(--error-text);
 }
 
 :root {
@@ -74,6 +76,8 @@
   --disabled: #e8e2ea;
   --disabled-foreground: #766e7c;
   --lima-soft: #d9f99a;
+  --error-surface: #fcece9;
+  --error-text: #a12f36;
 }
 
 @layer base {

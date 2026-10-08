@@ -1,27 +1,16 @@
-import { NavLink, Outlet } from 'react-router'
-
-const links = [
-  { to: '/', label: 'Panorama' },
-  { to: '/mapa', label: 'Mapa' },
-  { to: '/zonas/090050001039A', label: 'Zona' },
-  { to: '/solicitudes', label: 'Solicitudes' },
-  { to: '/metodologia', label: 'Metodología' },
-]
+import { Outlet } from 'react-router'
+import { Header } from '@/components/layout/Header'
+import { Sidebar } from '@/components/layout/Sidebar'
 
 export default function AppShell() {
   return (
-    <div className="flex min-h-svh">
-      <aside className="border-r p-4">
-        <nav className="flex flex-col gap-2">
-          {links.map((link) => (
-            <NavLink key={link.to} to={link.to} end>
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
-      </aside>
-      <main className="flex-1 p-6">
-        <Outlet />
+    <div className="min-h-svh bg-background">
+      <Header />
+      <Sidebar />
+      <main className="min-h-svh px-6 py-16 lg:pl-[calc(16rem+1.5rem)]">
+        <div className="w-full max-w-[1440px]">
+          <Outlet />
+        </div>
       </main>
     </div>
   )
