@@ -1,6 +1,11 @@
 import { Link } from 'react-router'
 import { ApiError } from '@/api/errors'
-import type { RecomendacionZona } from '@/api/types'
+import type {
+  IndicadoresEvidencia,
+  RecomendacionZona,
+  ValorEvidencia,
+} from '@/api/types'
+import { LevelBadge } from '@/components/indicadores/LevelBadge'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatearEntero, formatearPuntuacion } from '@/lib/format'
@@ -8,6 +13,7 @@ import {
   ACCION_LABELS,
   BARRERA_LABELS,
   CONFIANZA_LABELS,
+  DIMENSION_LABELS,
   PRIORIDAD_LABELS,
 } from '@/lib/labels'
 import { useRecomendacionesZona } from '../useZona'
@@ -25,7 +31,11 @@ function formatearClave(clave: string) {
   return texto.charAt(0).toUpperCase() + texto.slice(1)
 }
 
-function formatearValor(valor: string | number | boolean | null) {
+function esIndicadores(valor: ValorEvidencia): valor is IndicadoresEvidencia {
+  return typeof valor === 'object' && valor !== null
+}
+
+function formatearValor(valor: Exclude<ValorEvidencia, IndicadoresEvidencia>) {
   if (valor === null) return 'Sin evidencia suficiente'
   if (typeof valor === 'number') {
     return Number.isInteger(valor)
@@ -47,7 +57,13 @@ function Detalle({ recomendacion }: { recomendacion: RecomendacionZona }) {
   const razones = Array.isArray(recomendacion.razones)
     ? recomendacion.razones
     : []
-  const evidencia = Object.entries(recomendacion.evidencia ?? {})
+  const entradas = Object.entries(recomendacion.evidencia ?? {})
+  const evidencia = entradas.flatMap(([clave, valor]) =>
+    esIndicadores(valor) ? [] : [[clave, valor] as const],
+  )
+  const indicadores = entradas.flatMap(([, valor]) =>
+    esIndicadores(valor) ? Object.entries(valor) : [],
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -79,6 +95,40 @@ function Detalle({ recomendacion }: { recomendacion: RecomendacionZona }) {
           <ul className="flex list-disc flex-col gap-1 pl-5 text-sm text-muted-foreground">
             {razones.map((razon) => (
               <li key={razon}>{razon}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {indicadores.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <p className="text-xs tracking-wider text-muted-foreground uppercase">
+            Indicadores
+          </p>
+          <ul className="flex flex-col divide-y rounded-md border bg-card text-sm">
+            {indicadores.map(([dimension, indicador]) => (
+              <li
+                key={dimension}
+                className="flex items-center justify-between gap-4 px-4 py-2"
+              >
+                <span className="text-muted-foreground">
+                  {DIMENSION_LABELS[
+                    dimension as keyof typeof DIMENSION_LABELS
+                  ] ?? formatearClave(dimension.toLowerCase())}
+                </span>
+                {indicador.puntuacion === null || indicador.nivel === null ? (
+                  <span className="font-medium text-foreground">
+                    Sin evidencia suficiente
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-3">
+                    <LevelBadge nivel={indicador.nivel} />
+                    <span className="font-medium text-foreground">
+                      {formatearPuntuacion(indicador.puntuacion)}
+                    </span>
+                  </span>
+                )}
+              </li>
             ))}
           </ul>
         </div>

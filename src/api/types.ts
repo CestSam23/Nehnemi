@@ -114,6 +114,18 @@ export type ZonaPrioritaria = {
   creado_en: string
 }
 
+export type IndicadorEvidencia = {
+  nivel: NivelIndicador | null
+  puntuacion: number | null
+}
+
+export type IndicadoresEvidencia = Partial<
+  Record<DimensionIndicador, IndicadorEvidencia>
+>
+
+export type ValorEvidencia =
+  string | number | boolean | null | IndicadoresEvidencia
+
 export type RecomendacionZona = {
   id: number
   barrera_principal: TipoBarreraDiagnosticada
@@ -121,7 +133,7 @@ export type RecomendacionZona = {
   prioridad: PrioridadRecomendacion
   confianza: NivelConfianza
   razones: string[]
-  evidencia: Record<string, string | number | boolean | null>
+  evidencia: Record<string, ValorEvidencia>
   version_reglas: string
   creado_en: string
 }
