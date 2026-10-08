@@ -61,7 +61,7 @@ export const CAPA_ETIQUETAS = 'etiquetas'
 export const CENTRO_INICIAL: [number, number] = [-99.13, 19.43]
 export const ZOOM_INICIAL = 10.5
 export const OPACIDAD_RELLENO = 0.65
-export const OPACIDAD_BORDE = 0.35
+export const OPACIDAD_BORDE = 1
 
 export const CAPA_AGUA = 'agua'
 
@@ -233,6 +233,6 @@ function porZoom(...pares: number[]): ExpressionSpecification {
   return ['interpolate', ['linear'], ['zoom'], ...pares]
 }
 
-export const ANCHO_BORDE = porZoom(8, 0.25, 11, 0.6, 14, 1.4)
+export const ANCHO_BORDE = porZoom(8, 0.5, 11, 1.1, 14, 2.2)
 export const RADIO_ESTACION = porZoom(8, 2.5, 12, 4, 15, 7)
 export const RADIO_HALO_ESTACION = porZoom(8, 6, 12, 10, 15, 16)
