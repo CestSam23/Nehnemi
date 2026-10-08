@@ -64,8 +64,6 @@ export const OPACIDAD_RELLENO = 0.65
 export const OPACIDAD_BORDE = 0.35
 
 export const CAPA_AGUA = 'agua'
-export const ZOOM_ENTRADA = 9.2
-export const PITCH_INICIAL = 35
 
 export function getEstiloMapa(paleta: PaletaMapa): StyleSpecification {
   const anchoCalle = (base: number): ExpressionSpecification =>
@@ -118,16 +116,11 @@ export function getEstiloMapa(paleta: PaletaMapa): StyleSpecification {
       },
       {
         id: 'edificios',
-        type: 'fill-extrusion',
+        type: 'fill',
         source: 'mapa',
         'source-layer': 'building',
         minzoom: 14,
-        paint: {
-          'fill-extrusion-color': paleta.edificio,
-          'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 6],
-          'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
-          'fill-extrusion-opacity': 0.85,
-        },
+        paint: { 'fill-color': paleta.edificio, 'fill-opacity': 0.85 },
       },
       {
         id: 'calles-borde',
