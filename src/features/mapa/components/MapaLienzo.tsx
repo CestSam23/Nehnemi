@@ -1,6 +1,7 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { LoaderCircle, Minus, Plus, ScanLine } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import type { Map as MapLibreMap } from 'maplibre-gl'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Layer,
   Map as MapaGL,
@@ -20,14 +21,17 @@ import { cn } from '@/lib/utils'
 import { limitesDe, type Limites } from '../geometria'
 import {
   ANCHO_BORDE,
+  CAPA_AGUA,
   CAPA_ETIQUETAS,
   CENTRO_INICIAL,
   FILTRO_SIN_DATOS,
   IMAGEN_SIN_DATOS,
   OPACIDAD_BORDE,
   OPACIDAD_RELLENO,
+  PITCH_INICIAL,
   RADIO_ESTACION,
   RADIO_HALO_ESTACION,
+  ZOOM_ENTRADA,
   ZOOM_INICIAL,
   crearPatronSinDatos,
   expresionRelleno,
@@ -99,7 +103,39 @@ export function MapaLienzo({
   const [patronListo, setPatronListo] = useState(false)
 
   const paleta = useMemo(() => leerPaleta(), [])
-  const estilo = useMemo(() => getEstiloMapa(), [])
+  const estilo = useMemo(() => getEstiloMapa(paleta), [paleta])
+  const animacion = useRef(0)
+
+  useEffect(() => () => cancelAnimationFrame(animacion.current), [])
+
+  function animarMapa(mapa: MapLibreMap) {
+    mapa.easeTo({
+      zoom: ZOOM_INICIAL,
+      pitch: PITCH_INICIAL,
+      duration: 2400,
+      easing: (t) => 1 - Math.pow(1 - t, 3),
+    })
+    const inicio = performance.now()
+    const latir = (ahora: number) => {
+      const t = (ahora - inicio) / 1000
+      if (mapa.getLayer(CAPA_AGUA)) {
+        mapa.setPaintProperty(
+          CAPA_AGUA,
+          'fill-opacity',
+          0.8 + 0.2 * Math.sin(t * 1.4),
+        )
+      }
+      if (mapa.getLayer('estaciones-halo')) {
+        mapa.setPaintProperty(
+          'estaciones-halo',
+          'circle-opacity',
+          0.25 + 0.2 * Math.sin(t * 3),
+        )
+      }
+      animacion.current = requestAnimationFrame(latir)
+    }
+    animacion.current = requestAnimationFrame(latir)
+  }
   const limites = useMemo(() => limitesDe(datos.features), [datos.features])
 
   const puntosEstaciones = useMemo(
@@ -160,16 +196,18 @@ export function MapaLienzo({
         initialViewState={{
           longitude: CENTRO_INICIAL[0],
           latitude: CENTRO_INICIAL[1],
-          zoom: ZOOM_INICIAL,
+          zoom: ZOOM_ENTRADA,
+          pitch: 0,
         }}
         style={{ width: '100%', height: '100%' }}
         attributionControl={{ compact: true }}
         dragRotate={false}
-        maxPitch={0}
+        maxPitch={60}
         interactiveLayerIds={['zonas-relleno', 'zonas-sin-datos']}
         cursor={bajoCursor ? 'pointer' : 'grab'}
         onLoad={(evento) => {
           evento.target.resize()
+          animarMapa(evento.target)
           const imagen = crearPatronSinDatos(paleta)
           if (!imagen) return
           evento.target.addImage(IMAGEN_SIN_DATOS, imagen)

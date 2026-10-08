@@ -92,6 +92,13 @@
   --map-alta: #2f1744;
   --map-sin-datos: #dfd8df;
   --map-sin-datos-trazo: #7c757e;
+  --map-agua: #b8dcef;
+  --map-agua-brillo: #d3ecf8;
+  --map-parque: #cfe8b0;
+  --map-calle: #fffcf5;
+  --map-calle-borde: #e3dac5;
+  --map-edificio: #ddd4c1;
+  --map-texto: #5a4a6b;
 }
 
 @layer base {

@@ -14,6 +14,13 @@ export type PaletaMapa = {
   sinDatosTrazo: string
   estacion: string
   estacionBorde: string
+  agua: string
+  aguaBrillo: string
+  parque: string
+  calle: string
+  calleBorde: string
+  edificio: string
+  texto: string
   niveles: Record<NivelIndicador, string>
 }
 
@@ -34,6 +41,13 @@ export function leerPaleta(): PaletaMapa {
     sinDatosTrazo: leerToken('--map-sin-datos-trazo'),
     estacion: leerToken('--accent'),
     estacionBorde: leerToken('--primary'),
+    agua: leerToken('--map-agua'),
+    aguaBrillo: leerToken('--map-agua-brillo'),
+    parque: leerToken('--map-parque'),
+    calle: leerToken('--map-calle'),
+    calleBorde: leerToken('--map-calle-borde'),
+    edificio: leerToken('--map-edificio'),
+    texto: leerToken('--map-texto'),
     niveles: {
       MUY_BAJA: leerToken(NIVELES.MUY_BAJA.mapaToken),
       BAJA: leerToken(NIVELES.BAJA.mapaToken),
@@ -49,31 +63,131 @@ export const ZOOM_INICIAL = 10.5
 export const OPACIDAD_RELLENO = 0.65
 export const OPACIDAD_BORDE = 0.35
 
-export function getEstiloMapa(): StyleSpecification {
+export const CAPA_AGUA = 'agua'
+export const ZOOM_ENTRADA = 9.2
+export const PITCH_INICIAL = 35
+
+export function getEstiloMapa(paleta: PaletaMapa): StyleSpecification {
+  const anchoCalle = (base: number): ExpressionSpecification =>
+    porZoom(9, base * 0.2, 13, base, 16, base * 3)
+
   return {
     version: 8,
+    glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
     sources: {
-      satelite: {
-        type: 'raster',
-        tiles: [
-          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        ],
-        tileSize: 256,
-        maxzoom: 19,
-        attribution: 'Esri, Maxar, Earthstar Geographics',
-      },
-      referencias: {
-        type: 'raster',
-        tiles: [
-          'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-        ],
-        tileSize: 256,
-        maxzoom: 19,
+      mapa: {
+        type: 'vector',
+        url: 'https://tiles.openfreemap.org/planet',
+        attribution: 'OpenFreeMap © OpenMapTiles, datos de OpenStreetMap',
       },
     },
     layers: [
-      { id: 'satelite', type: 'raster', source: 'satelite' },
-      { id: CAPA_ETIQUETAS, type: 'raster', source: 'referencias' },
+      {
+        id: 'fondo',
+        type: 'background',
+        paint: { 'background-color': paleta.lienzo },
+      },
+      {
+        id: 'parques',
+        type: 'fill',
+        source: 'mapa',
+        'source-layer': 'landcover',
+        filter: ['in', 'class', 'grass', 'wood', 'farmland'],
+        paint: { 'fill-color': paleta.parque, 'fill-opacity': 0.8 },
+      },
+      {
+        id: 'parques-urbanos',
+        type: 'fill',
+        source: 'mapa',
+        'source-layer': 'park',
+        paint: { 'fill-color': paleta.parque },
+      },
+      {
+        id: CAPA_AGUA,
+        type: 'fill',
+        source: 'mapa',
+        'source-layer': 'water',
+        paint: { 'fill-color': paleta.agua },
+      },
+      {
+        id: 'rios',
+        type: 'line',
+        source: 'mapa',
+        'source-layer': 'waterway',
+        paint: { 'line-color': paleta.agua, 'line-width': anchoCalle(1.5) },
+      },
+      {
+        id: 'edificios',
+        type: 'fill-extrusion',
+        source: 'mapa',
+        'source-layer': 'building',
+        minzoom: 14,
+        paint: {
+          'fill-extrusion-color': paleta.edificio,
+          'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 6],
+          'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+          'fill-extrusion-opacity': 0.85,
+        },
+      },
+      {
+        id: 'calles-borde',
+        type: 'line',
+        source: 'mapa',
+        'source-layer': 'transportation',
+        filter: [
+          'in',
+          'class',
+          'motorway',
+          'trunk',
+          'primary',
+          'secondary',
+          'tertiary',
+          'minor',
+          'service',
+        ],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': paleta.calleBorde,
+          'line-width': anchoCalle(2.6),
+        },
+      },
+      {
+        id: 'calles',
+        type: 'line',
+        source: 'mapa',
+        'source-layer': 'transportation',
+        filter: [
+          'in',
+          'class',
+          'motorway',
+          'trunk',
+          'primary',
+          'secondary',
+          'tertiary',
+          'minor',
+          'service',
+        ],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': paleta.calle, 'line-width': anchoCalle(1.8) },
+      },
+      {
+        id: CAPA_ETIQUETAS,
+        type: 'symbol',
+        source: 'mapa',
+        'source-layer': 'place',
+        filter: ['in', 'class', 'city', 'town', 'suburb', 'neighbourhood'],
+        layout: {
+          'text-field': ['coalesce', ['get', 'name:es'], ['get', 'name']],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': porZoom(9, 11, 14, 15),
+          'text-letter-spacing': 0.04,
+        },
+        paint: {
+          'text-color': paleta.texto,
+          'text-halo-color': paleta.calle,
+          'text-halo-width': 1.6,
+        },
+      },
     ],
   }
 }
