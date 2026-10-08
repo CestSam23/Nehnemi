@@ -44,6 +44,12 @@
   --color-lima-soft: var(--lima-soft);
   --color-error-surface: var(--error-surface);
   --color-error-text: var(--error-text);
+  --color-map-muy-baja: var(--map-muy-baja);
+  --color-map-baja: var(--map-baja);
+  --color-map-media: var(--map-media);
+  --color-map-alta: var(--map-alta);
+  --color-map-sin-datos: var(--map-sin-datos);
+  --color-map-sin-datos-trazo: var(--map-sin-datos-trazo);
 }
 
 :root {
@@ -78,6 +84,12 @@
   --lima-soft: #d9f99a;
   --error-surface: #fcece9;
   --error-text: #a12f36;
+  --map-muy-baja: #ede5f3;
+  --map-baja: #c4b5d0;
+  --map-media: #7a539b;
+  --map-alta: #39214f;
+  --map-sin-datos: #dfd8df;
+  --map-sin-datos-trazo: #7c757e;
 }
 
 @layer base {

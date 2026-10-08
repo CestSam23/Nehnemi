@@ -82,6 +82,53 @@ export type DimensionPanorama = {
   motivo?: string
 }
 
+export type DistribucionDimension = {
+  disponibles: number
+  sin_datos: number
+  niveles: Record<NivelIndicador, number>
+}
+
+export type PuntoVentasEv = {
+  periodo: string
+  valor: number
+}
+
+export type VentasEv = {
+  ambito: string
+  ultimo_periodo: string
+  ultimo_valor: number
+  periodos_disponibles: number
+  serie_mensual?: PuntoVentasEv[]
+}
+
+export type ZonaPrioritaria = {
+  clave_zona: string
+  nombre_zona: string
+  recomendacion_id: number
+  barrera_principal: TipoBarreraDiagnosticada
+  accion: AccionRecomendada
+  prioridad: PrioridadRecomendacion
+  confianza: NivelConfianza
+  creado_en: string
+}
+
+export type RecomendacionZona = {
+  id: number
+  barrera_principal: TipoBarreraDiagnosticada
+  accion: AccionRecomendada
+  prioridad: PrioridadRecomendacion
+  confianza: NivelConfianza
+  razones: string[]
+  evidencia: Record<string, string | number | boolean | null>
+  version_reglas: string
+  creado_en: string
+}
+
+export type RecomendacionesZonaRespuesta = {
+  zona_clave: string
+  recomendaciones: RecomendacionZona[]
+}
+
 export type PanoramaRespuesta = {
   fecha_actualizacion: string
   cobertura_territorial: {
@@ -91,11 +138,21 @@ export type PanoramaRespuesta = {
   infraestructura: {
     estaciones_registradas: number
     conectores_registrados: number
+    potencia_total_kw: number
+    potencia_nominal_agregada_kw?: number
     estado_operativo_verificado: boolean
   }
   participacion: {
+    ciudadanos_registrados: number
     solicitudes_registradas: number
   }
+  solicitudes: {
+    total: number
+    por_estado: Record<EstadoSolicitud, number>
+  }
+  distribuciones: Record<DimensionIndicador, DistribucionDimension>
+  ventas_ev: VentasEv
+  zonas_prioritarias: ZonaPrioritaria[]
   fuentes_documentadas: number
   dimensiones: Record<DimensionIndicador, DimensionPanorama>
 }
@@ -153,6 +210,11 @@ export type ZonaMapaFeature = {
 export type ZonasMapaRespuesta = {
   type: 'FeatureCollection'
   features: ZonaMapaFeature[]
+}
+
+export type ZonasMapaParams = {
+  tipo: Exclude<TipoZona, 'CDMX'>
+  dimension: DimensionIndicador
 }
 
 export type InfraestructuraZona = {

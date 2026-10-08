@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
+    optimizeDeps: {
+      exclude: ['maplibre-gl'],
+    },
     server: {
       proxy: {
         '/api': {
