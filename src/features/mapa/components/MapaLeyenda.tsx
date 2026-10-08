@@ -15,7 +15,7 @@ export function MapaLeyenda({ dimension }: { dimension: DimensionIndicador }) {
         {DIMENSION_LABELS[dimension]}
       </p>
       <div className="flex flex-col gap-1">
-        <div className="flex h-2 overflow-hidden rounded-full">
+        <div className="flex h-2 overflow-hidden rounded-full opacity-65">
           {ORDEN.map((nivel) => (
             <span key={nivel} className={cn('flex-1', NIVELES[nivel].mapa)} />
           ))}
@@ -28,7 +28,7 @@ export function MapaLeyenda({ dimension }: { dimension: DimensionIndicador }) {
       <p className="flex items-center gap-2 border-t pt-2 text-[11px] text-muted-foreground">
         <span
           className={cn(
-            'size-3 shrink-0 rounded-sm bg-[repeating-linear-gradient(135deg,var(--map-sin-datos-trazo)_0_1px,transparent_1px_4px)]',
+            'size-3 shrink-0 rounded-sm opacity-65 bg-[repeating-linear-gradient(135deg,var(--map-sin-datos-trazo)_0_1px,transparent_1px_4px)]',
             NIVELES.SIN_DATOS.mapa,
           )}
         />

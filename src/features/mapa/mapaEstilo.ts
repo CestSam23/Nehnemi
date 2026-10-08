@@ -43,16 +43,37 @@ export function leerPaleta(): PaletaMapa {
   }
 }
 
-export function crearEstilo(paleta: PaletaMapa): StyleSpecification {
+export const CAPA_ETIQUETAS = 'etiquetas'
+export const CENTRO_INICIAL: [number, number] = [-99.13, 19.43]
+export const ZOOM_INICIAL = 10.5
+export const OPACIDAD_RELLENO = 0.65
+export const OPACIDAD_BORDE = 0.35
+
+export function getEstiloMapa(): StyleSpecification {
   return {
     version: 8,
-    sources: {},
-    layers: [
-      {
-        id: 'fondo',
-        type: 'background',
-        paint: { 'background-color': paleta.lienzo },
+    sources: {
+      satelite: {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: 'Esri, Maxar, Earthstar Geographics',
       },
+      referencias: {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        maxzoom: 19,
+      },
+    },
+    layers: [
+      { id: 'satelite', type: 'raster', source: 'satelite' },
+      { id: CAPA_ETIQUETAS, type: 'raster', source: 'referencias' },
     ],
   }
 }

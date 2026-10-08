@@ -8,11 +8,12 @@ import {
 import { queryKeys } from '@/api/queryKeys'
 import { reintentar } from '@/lib/reintentar'
 
-export function useResumenZona(clave: string) {
+export function useResumenZona(clave: string, enabled = true) {
   return useQuery({
     queryKey: queryKeys.zona.resumen(clave),
     queryFn: () => getResumenZona(clave),
     retry: reintentar,
+    enabled,
   })
 }
 
@@ -24,11 +25,12 @@ export function useSenalesZona(clave: string) {
   })
 }
 
-export function useRecomendacionesZona(clave: string) {
+export function useRecomendacionesZona(clave: string, enabled = true) {
   return useQuery({
     queryKey: queryKeys.zona.recomendaciones(clave),
     queryFn: () => getRecomendacionesZona(clave),
     retry: reintentar,
+    enabled,
   })
 }
 

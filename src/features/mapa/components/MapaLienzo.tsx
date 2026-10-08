@@ -20,13 +20,18 @@ import { cn } from '@/lib/utils'
 import { limitesDe, type Limites } from '../geometria'
 import {
   ANCHO_BORDE,
+  CAPA_ETIQUETAS,
+  CENTRO_INICIAL,
   FILTRO_SIN_DATOS,
   IMAGEN_SIN_DATOS,
+  OPACIDAD_BORDE,
+  OPACIDAD_RELLENO,
   RADIO_ESTACION,
   RADIO_HALO_ESTACION,
-  crearEstilo,
+  ZOOM_INICIAL,
   crearPatronSinDatos,
   expresionRelleno,
+  getEstiloMapa,
   leerPaleta,
 } from '../mapaEstilo'
 
@@ -94,7 +99,7 @@ export function MapaLienzo({
   const [patronListo, setPatronListo] = useState(false)
 
   const paleta = useMemo(() => leerPaleta(), [])
-  const estilo = useMemo(() => crearEstilo(paleta), [paleta])
+  const estilo = useMemo(() => getEstiloMapa(), [])
   const limites = useMemo(() => limitesDe(datos.features), [datos.features])
 
   const puntosEstaciones = useMemo(
@@ -153,18 +158,18 @@ export function MapaLienzo({
       <MapaGL
         mapStyle={estilo}
         initialViewState={{
-          bounds: limites,
-          fitBoundsOptions: { padding: 24 },
+          longitude: CENTRO_INICIAL[0],
+          latitude: CENTRO_INICIAL[1],
+          zoom: ZOOM_INICIAL,
         }}
         style={{ width: '100%', height: '100%' }}
-        attributionControl={false}
+        attributionControl={{ compact: true }}
         dragRotate={false}
         maxPitch={0}
         interactiveLayerIds={['zonas-relleno', 'zonas-sin-datos']}
         cursor={bajoCursor ? 'pointer' : 'grab'}
         onLoad={(evento) => {
           evento.target.resize()
-          evento.target.fitBounds(limites, { padding: 24, duration: 0 })
           const imagen = crearPatronSinDatos(paleta)
           if (!imagen) return
           evento.target.addImage(IMAGEN_SIN_DATOS, imagen)
@@ -178,47 +183,58 @@ export function MapaLienzo({
           <Layer
             id="zonas-relleno"
             type="fill"
+            beforeId={CAPA_ETIQUETAS}
             paint={{
               'fill-color': expresionRelleno(paleta),
               'fill-color-transition': { duration: 450 },
+              'fill-opacity': OPACIDAD_RELLENO,
             }}
           />
           {patronListo && (
             <Layer
               id="zonas-sin-datos"
               type="fill"
+              beforeId={CAPA_ETIQUETAS}
               filter={FILTRO_SIN_DATOS}
-              paint={{ 'fill-pattern': IMAGEN_SIN_DATOS }}
+              paint={{
+                'fill-pattern': IMAGEN_SIN_DATOS,
+                'fill-opacity': OPACIDAD_RELLENO,
+              }}
             />
           )}
           <Layer
             id="zonas-hover-relleno"
             type="fill"
+            beforeId={CAPA_ETIQUETAS}
             filter={['==', ['get', 'clave'], bajoCursor?.clave ?? '']}
-            paint={{ 'fill-color': paleta.fondo, 'fill-opacity': 0.28 }}
+            paint={{ 'fill-color': paleta.fondo, 'fill-opacity': 0.25 }}
           />
           <Layer
             id="zonas-borde"
             type="line"
+            beforeId={CAPA_ETIQUETAS}
             paint={{
               'line-color': paleta.borde,
               'line-width': ANCHO_BORDE,
-              'line-opacity': 0.9,
+              'line-opacity': OPACIDAD_BORDE,
             }}
           />
           <Layer
             id="zonas-hover"
             type="line"
+            beforeId={CAPA_ETIQUETAS}
             filter={['==', ['get', 'clave'], bajoCursor?.clave ?? '']}
+            layout={{ 'line-join': 'round' }}
             paint={{
-              'line-color': paleta.contorno,
-              'line-width': 1.5,
-              'line-opacity': 0.8,
+              'line-color': paleta.fondo,
+              'line-width': 2.5,
+              'line-opacity': 1,
             }}
           />
           <Layer
             id="zonas-seleccion-halo"
             type="line"
+            beforeId={CAPA_ETIQUETAS}
             filter={['==', ['get', 'clave'], claveSeleccionada ?? '']}
             layout={{ 'line-join': 'round' }}
             paint={{
@@ -230,9 +246,10 @@ export function MapaLienzo({
           <Layer
             id="zonas-seleccion"
             type="line"
+            beforeId={CAPA_ETIQUETAS}
             filter={['==', ['get', 'clave'], claveSeleccionada ?? '']}
             layout={{ 'line-join': 'round' }}
-            paint={{ 'line-color': paleta.contorno, 'line-width': 2.5 }}
+            paint={{ 'line-color': paleta.fondo, 'line-width': 2.5 }}
           />
         </Source>
         {estaciones && (
