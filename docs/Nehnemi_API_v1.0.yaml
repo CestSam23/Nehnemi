@@ -1,0 +1,561 @@
+openapi: 3.0.3
+info:
+  title: API Nehnemi
+  version: 1.0.0
+  description: Contrato final v1.0. Las rutas de /api/v1 quedan congeladas para la
+    implementación del prototipo Nehnemi.
+servers:
+- url: /api/v1
+paths:
+  /salud:
+    get:
+      summary: Estado del servicio
+      responses:
+        '200':
+          description: Servicio disponible
+  /autenticacion/iniciar-sesion:
+    post:
+      summary: Iniciar sesión gubernamental
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - correo
+              - contrasena
+              properties:
+                correo:
+                  type: string
+                  format: email
+                contrasena:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Sesión iniciada
+        '401':
+          description: Credenciales inválidas
+  /autenticacion/sesion:
+    get:
+      summary: Consultar sesión gubernamental
+      security:
+      - SesionGobierno: []
+      responses:
+        '200':
+          description: Sesión vigente
+        '401':
+          description: Sin sesión
+  /autenticacion/cerrar-sesion:
+    post:
+      summary: Cerrar sesión gubernamental
+      security:
+      - SesionGobierno: []
+      responses:
+        '200':
+          description: Sesión cerrada
+  /panorama:
+    get:
+      summary: Panorama CDMX
+      security:
+      - SesionGobierno: []
+      responses:
+        '200':
+          description: Resumen ejecutivo
+  /zonas:
+    get:
+      summary: Listar zonas
+      parameters:
+      - in: query
+        name: tipo
+        schema:
+          type: string
+          enum:
+          - CDMX
+          - ALCALDIA
+          - AGEB
+      - in: query
+        name: zona_padre
+        schema:
+          type: string
+      - in: query
+        name: buscar
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Zonas
+  /zonas/mapa:
+    get:
+      summary: Mapa territorial
+      security:
+      - SesionGobierno: []
+      parameters:
+      - in: query
+        name: tipo
+        required: true
+        schema:
+          type: string
+          enum:
+          - ALCALDIA
+          - AGEB
+      - in: query
+        name: dimension
+        required: true
+        schema:
+          type: string
+          enum:
+          - ADOPCION
+          - INFRAESTRUCTURA
+          - PARTICIPACION
+          - ACCESIBILIDAD
+      responses:
+        '200':
+          description: GeoJSON
+  /zonas/{clave_zona}/resumen:
+    get:
+      summary: Resumen de zona
+      security:
+      - SesionGobierno: []
+      parameters:
+      - in: path
+        name: clave_zona
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Resumen integral
+        '404':
+          description: Zona no encontrada
+  /zonas/{clave_zona}/indicadores:
+    get:
+      summary: Indicadores de zona
+      security:
+      - SesionGobierno: []
+      parameters:
+      - in: path
+        name: clave_zona
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: historico
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: Indicadores
+  /zonas/{clave_zona}/senales:
+    get:
+      summary: Señales diagnósticas
+      security:
+      - SesionGobierno: []
+      parameters:
+      - in: path
+        name: clave_zona
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Señales
+  /zonas/{clave_zona}/solicitudes:
+    get:
+      summary: Solicitudes agregadas por zona
+      security:
+      - SesionGobierno: []
+      parameters:
+      - in: path
+        name: clave_zona
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Agregados de solicitudes
+  /zonas/{clave_zona}/recomendaciones:
+    get:
+      summary: Recomendaciones de zona
+      security:
+      - SesionGobierno: []
+      parameters:
+      - in: path
+        name: clave_zona
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Recomendaciones
+  /zonas/{clave_zona}/evaluar:
+    post:
+      summary: Recalcular zona
+      security:
+      - SesionGobierno: []
+      parameters:
+      - in: path
+        name: clave_zona
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Zona evaluada
+        '403':
+          description: Requiere administrador
+  /estaciones-carga:
+    get:
+      summary: Buscar estaciones
+      parameters:
+      - in: query
+        name: latitud
+        schema:
+          type: number
+      - in: query
+        name: longitud
+        schema:
+          type: number
+      - in: query
+        name: radio_km
+        schema:
+          type: number
+          minimum: 0
+      - in: query
+        name: clave_zona
+        schema:
+          type: string
+      - in: query
+        name: buscar
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Estaciones
+  /estaciones-carga/{estacion_id}:
+    get:
+      summary: Detalle de estación
+      parameters:
+      - in: path
+        name: estacion_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Estación
+        '404':
+          description: No encontrada
+  /tendencias/electromovilidad:
+    get:
+      summary: Tendencias oficiales CDMX
+      security:
+      - SesionGobierno: []
+      responses:
+        '200':
+          description: Series
+  /fuentes-datos:
+    get:
+      summary: Fuentes de datos
+      security:
+      - SesionGobierno: []
+      responses:
+        '200':
+          description: Fuentes
+  /contenidos:
+    get:
+      summary: Contenidos Lititio
+      parameters:
+      - in: query
+        name: categoria
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Contenidos
+  /contenidos/{slug}:
+    get:
+      summary: Detalle de contenido
+      parameters:
+      - in: path
+        name: slug
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Contenido
+        '404':
+          description: No encontrado
+  /ciudadanos:
+    post:
+      summary: Crear perfil ciudadano seudónimo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - tiene_automovil
+              - propulsion
+              - consideraria_ev
+              - barrera_principal
+              - consentimiento_agregado
+              properties:
+                tiene_automovil:
+                  type: boolean
+                propulsion:
+                  type: string
+                  enum:
+                  - ELECTRICO
+                  - HIBRIDO_ENCHUFABLE
+                  - HIBRIDO
+                  - COMBUSTION
+                  - OTRO
+                  - SIN_AUTOMOVIL
+                consideraria_ev:
+                  type: string
+                  enum:
+                  - SI
+                  - 'NO'
+                  - NO_SE
+                barrera_principal:
+                  type: string
+                  enum:
+                  - PRECIO
+                  - CARGA
+                  - AUTONOMIA
+                  - INFORMACION_DUDAS
+                  - CARACTERISTICAS_VEHICULO
+                  - NO_INTERESA
+                  - OTRA
+                  - NINGUNA
+                consentimiento_agregado:
+                  type: boolean
+                ubicacion:
+                  $ref: '#/components/schemas/Ubicacion'
+                clave_zona:
+                  type: string
+      responses:
+        '201':
+          description: Perfil creado
+        '422':
+          description: Datos inválidos
+  /ciudadanos/mi-perfil:
+    get:
+      summary: Mi perfil
+      security:
+      - TokenCiudadano: []
+      responses:
+        '200':
+          description: Perfil
+    patch:
+      summary: Actualizar mi perfil
+      security:
+      - TokenCiudadano: []
+      responses:
+        '200':
+          description: Perfil actualizado
+    delete:
+      summary: Eliminar mi perfil
+      security:
+      - TokenCiudadano: []
+      responses:
+        '200':
+          description: Perfil eliminado
+  /ciudadanos/mis-solicitudes:
+    get:
+      summary: Mis solicitudes
+      security:
+      - TokenCiudadano: []
+      responses:
+        '200':
+          description: Solicitudes propias
+  /solicitudes-infraestructura:
+    post:
+      summary: Crear solicitud
+      security:
+      - TokenCiudadano: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - ubicacion
+              - motivo
+              properties:
+                ubicacion:
+                  $ref: '#/components/schemas/Ubicacion'
+                motivo:
+                  type: string
+                  enum:
+                  - VIVO_CERCA
+                  - TRABAJO_CERCA
+                  - TRANSITO_FRECUENTE
+                  - TENGO_EV
+                  - CONSIDERARIA_EV_CON_CARGA
+                  - OTRO
+                comentario:
+                  type: string
+                  maxLength: 500
+      responses:
+        '201':
+          description: Solicitud creada
+        '422':
+          description: Datos inválidos
+    get:
+      summary: Listado gubernamental de solicitudes
+      security:
+      - SesionGobierno: []
+      parameters:
+      - in: query
+        name: clave_zona
+        schema:
+          type: string
+      - in: query
+        name: estado
+        schema:
+          type: string
+          enum:
+          - REGISTRADA
+          - EN_REVISION
+          - ATENDIDA
+          - DESCARTADA
+      - in: query
+        name: pagina
+        schema:
+          type: integer
+          minimum: 1
+      - in: query
+        name: tamano
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Solicitudes anonimizadas
+  /solicitudes-infraestructura/{solicitud_id}:
+    get:
+      summary: Detalle de solicitud
+      parameters:
+      - in: path
+        name: solicitud_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Solicitud
+        '403':
+          description: Sin acceso
+        '404':
+          description: No encontrada
+    patch:
+      summary: Actualizar estado de solicitud
+      security:
+      - SesionGobierno: []
+      parameters:
+      - in: path
+        name: solicitud_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - estado
+              properties:
+                estado:
+                  type: string
+                  enum:
+                  - REGISTRADA
+                  - EN_REVISION
+                  - ATENDIDA
+                  - DESCARTADA
+      responses:
+        '200':
+          description: Solicitud actualizada
+        '403':
+          description: Sin acceso
+  /interacciones:
+    post:
+      summary: Registrar interacción
+      security:
+      - TokenCiudadano: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - tipo
+              properties:
+                tipo:
+                  type: string
+                  enum:
+                  - CONSULTA_CONTENIDO
+                  - CONSULTA_ESTACION
+                  - ACTUALIZACION_PERFIL
+                clave_zona:
+                  type: string
+                metadatos:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '201':
+          description: Interacción registrada
+components:
+  securitySchemes:
+    SesionGobierno:
+      type: apiKey
+      in: cookie
+      name: nehneni_sesion
+    TokenCiudadano:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          required:
+          - codigo
+          - mensaje
+          properties:
+            codigo:
+              type: string
+            mensaje:
+              type: string
+            detalles:
+              type: object
+              additionalProperties: true
+    Ubicacion:
+      type: object
+      required:
+      - latitud
+      - longitud
+      properties:
+        latitud:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitud:
+          type: number
+          minimum: -180
+          maximum: 180
