@@ -1,38 +1,52 @@
-export type ApiErrorDetalles = Record<string, unknown> | null
+export type ValidationIssue = {
+  loc: Array<string | number>
+  msg: string
+  type: string
+}
 
-export type ApiErrorBody = {
-  error: {
-    codigo: string
-    mensaje: string
-    detalles?: ApiErrorDetalles
-  }
+export type FastApiErrorBody = {
+  detail: string | ValidationIssue[]
 }
 
 export class ApiError extends Error {
   readonly status: number
-  readonly codigo: string
-  readonly detalles: ApiErrorDetalles
+  readonly issues: ValidationIssue[]
 
-  constructor(
-    status: number,
-    codigo: string,
-    mensaje: string,
-    detalles: ApiErrorDetalles = null,
-  ) {
-    super(mensaje)
+  constructor(status: number, message: string, issues: ValidationIssue[] = []) {
+    super(message)
     this.name = 'ApiError'
     this.status = status
-    this.codigo = codigo
-    this.detalles = detalles
+    this.issues = issues
   }
 }
 
-export function isApiErrorBody(value: unknown): value is ApiErrorBody {
-  if (typeof value !== 'object' || value === null || !('error' in value)) {
-    return false
+function isValidationIssue(value: unknown): value is ValidationIssue {
+  if (typeof value !== 'object' || value === null) return false
+  const { loc, msg } = value as { loc?: unknown; msg?: unknown }
+  return Array.isArray(loc) && typeof msg === 'string'
+}
+
+function describeIssue({ loc, msg }: ValidationIssue) {
+  const field = loc.slice(1).join('.')
+  return field ? `${field}: ${msg}` : msg
+}
+
+export function toApiError(status: number, body: unknown, fallback: string) {
+  const detail =
+    typeof body === 'object' && body !== null && 'detail' in body
+      ? (body as { detail: unknown }).detail
+      : undefined
+
+  if (typeof detail === 'string' && detail) {
+    return new ApiError(status, detail)
   }
-  const { error } = value as { error: unknown }
-  if (typeof error !== 'object' || error === null) return false
-  const { codigo, mensaje } = error as { codigo?: unknown; mensaje?: unknown }
-  return typeof codigo === 'string' && typeof mensaje === 'string'
+
+  if (Array.isArray(detail)) {
+    const issues = detail.filter(isValidationIssue)
+    if (issues.length > 0) {
+      return new ApiError(status, issues.map(describeIssue).join('; '), issues)
+    }
+  }
+
+  return new ApiError(status, fallback)
 }

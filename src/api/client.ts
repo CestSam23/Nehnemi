@@ -1,4 +1,4 @@
-import { ApiError, isApiErrorBody } from '@/api/errors'
+import { toApiError } from '@/api/errors'
 
 const BASE_URL = '/api/v1'
 
@@ -45,20 +45,14 @@ export async function apiFetch<T>(
     body: body !== undefined ? JSON.stringify(body) : undefined,
   })
 
+  if (response.status === 204) return undefined as T
+
   const data = await parseBody(response)
 
   if (!response.ok) {
-    if (isApiErrorBody(data)) {
-      throw new ApiError(
-        response.status,
-        data.error.codigo,
-        data.error.mensaje,
-        data.error.detalles ?? null,
-      )
-    }
-    throw new ApiError(
+    throw toApiError(
       response.status,
-      'ERROR_DESCONOCIDO',
+      data,
       response.statusText || 'Error de red',
     )
   }
