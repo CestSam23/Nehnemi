@@ -6,6 +6,8 @@ export const IMAGEN_SIN_DATOS = 'sin-datos'
 
 export type PaletaMapa = {
   fondo: string
+  lienzo: string
+  contorno: string
   borde: string
   seleccion: string
   sinDatos: string
@@ -24,6 +26,8 @@ function leerToken(nombre: string) {
 export function leerPaleta(): PaletaMapa {
   return {
     fondo: leerToken('--card'),
+    lienzo: leerToken('--map-fondo'),
+    contorno: leerToken('--primary'),
     borde: leerToken('--card'),
     seleccion: leerToken('--accent'),
     sinDatos: leerToken(NIVELES.SIN_DATOS.mapaToken),
@@ -47,7 +51,7 @@ export function crearEstilo(paleta: PaletaMapa): StyleSpecification {
       {
         id: 'fondo',
         type: 'background',
-        paint: { 'background-color': paleta.fondo },
+        paint: { 'background-color': paleta.lienzo },
       },
     ],
   }
@@ -96,3 +100,11 @@ export function crearPatronSinDatos(paleta: PaletaMapa) {
   ctx.stroke()
   return ctx.getImageData(0, 0, lado, lado)
 }
+
+function porZoom(...pares: number[]): ExpressionSpecification {
+  return ['interpolate', ['linear'], ['zoom'], ...pares]
+}
+
+export const ANCHO_BORDE = porZoom(8, 0.25, 11, 0.6, 14, 1.4)
+export const RADIO_ESTACION = porZoom(8, 2.5, 12, 4, 15, 7)
+export const RADIO_HALO_ESTACION = porZoom(8, 6, 12, 10, 15, 16)
