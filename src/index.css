@@ -36,6 +36,12 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
+  --color-action-hover: var(--action-hover);
+  --color-action-pressed: var(--action-pressed);
+  --color-secondary-pressed: var(--secondary-pressed);
+  --color-disabled: var(--disabled);
+  --color-disabled-foreground: var(--disabled-foreground);
+  --color-lima-soft: var(--lima-soft);
 }
 
 :root {
@@ -62,6 +68,12 @@
   --success: #4d8b63;
   --warning: #e6a633;
   --info: #4f72b8;
+  --action-hover: #4d3066;
+  --action-pressed: #271437;
+  --secondary-pressed: #ddd0e7;
+  --disabled: #e8e2ea;
+  --disabled-foreground: #766e7c;
+  --lima-soft: #d9f99a;
 }
 
 @layer base {

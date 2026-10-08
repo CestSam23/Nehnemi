@@ -1,0 +1,11 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="10.5" height="14.25" viewBox="0 0 10.5 14.25" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Ojo" clip-path="url(#clip0_0_16)">
+<ellipse id="Pupila" cx="5.25" cy="7.125" rx="5.25" ry="7.125" fill="#39214F"/>
+<ellipse id="Brillo" cx="3.75" cy="4.125" rx="1.5" ry="1.875" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_0_16">
+<rect width="10.5" height="14.25" fill="white"/>
+</clipPath>
+</defs>
+</svg>

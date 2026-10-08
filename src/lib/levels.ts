@@ -1,1 +1,57 @@
-export {}
+import type { Indicador, NivelIndicador } from '@/api/types'
+
+export type NivelVisual = NivelIndicador | 'SIN_DATOS'
+
+export type NivelConfig = {
+  etiqueta: string
+  token: 'coral' | 'warning' | 'info' | 'success' | 'muted-foreground'
+  badge: string
+  punto: string
+  barra: string
+}
+
+export const NIVELES: Record<NivelVisual, NivelConfig> = {
+  MUY_BAJA: {
+    etiqueta: 'Muy baja',
+    token: 'coral',
+    badge: 'border-coral/40 bg-coral/15 text-foreground',
+    punto: 'bg-coral',
+    barra: 'bg-coral',
+  },
+  BAJA: {
+    etiqueta: 'Baja',
+    token: 'warning',
+    badge: 'border-warning/50 bg-warning/15 text-foreground',
+    punto: 'bg-warning',
+    barra: 'bg-warning',
+  },
+  MEDIA: {
+    etiqueta: 'Media',
+    token: 'info',
+    badge: 'border-info/40 bg-info/15 text-foreground',
+    punto: 'bg-info',
+    barra: 'bg-info',
+  },
+  ALTA: {
+    etiqueta: 'Alta',
+    token: 'success',
+    badge: 'border-success/40 bg-success/15 text-foreground',
+    punto: 'bg-success',
+    barra: 'bg-success',
+  },
+  SIN_DATOS: {
+    etiqueta: 'Sin datos',
+    token: 'muted-foreground',
+    badge:
+      'border-dashed border-muted-foreground/50 bg-muted text-muted-foreground',
+    punto: 'border border-dashed border-muted-foreground bg-transparent',
+    barra: 'bg-muted',
+  },
+}
+
+export function nivelVisual(
+  indicador: Pick<Indicador, 'disponible' | 'nivel'>,
+): NivelVisual {
+  if (!indicador.disponible || indicador.nivel === null) return 'SIN_DATOS'
+  return indicador.nivel
+}
