@@ -274,6 +274,13 @@ export type ActualizarSolicitudBody = {
   estado: EstadoSolicitud
 }
 
+export type SolicitudesParams = {
+  pagina: number
+  limite: number
+  estado?: EstadoSolicitud
+  clave_zona?: string
+}
+
 export type FuenteDatos = {
   id: string
   clave: string

@@ -2,6 +2,7 @@ import type {
   AccionRecomendada,
   DimensionIndicador,
   EstadoSolicitud,
+  MotivoSolicitud,
   NivelConfianza,
   PrioridadRecomendacion,
   RolGobierno,
@@ -39,6 +40,29 @@ export const ESTADO_SOLICITUD_LABELS: Record<EstadoSolicitud, string> = {
   EN_REVISION: 'En revisión',
   ATENDIDA: 'Atendidas',
   DESCARTADA: 'Descartadas',
+}
+
+export const ESTADO_SOLICITUD_LABEL: Record<EstadoSolicitud, string> = {
+  REGISTRADA: 'Registrada',
+  EN_REVISION: 'En revisión',
+  ATENDIDA: 'Atendida',
+  DESCARTADA: 'Descartada',
+}
+
+export const ESTADO_SOLICITUD_COLORS: Record<EstadoSolicitud, string> = {
+  REGISTRADA: 'bg-info/15 text-info',
+  EN_REVISION: 'bg-warning/15 text-foreground',
+  ATENDIDA: 'bg-success/15 text-success',
+  DESCARTADA: 'bg-muted text-muted-foreground',
+}
+
+export const MOTIVO_LABELS: Record<MotivoSolicitud, string> = {
+  VIVO_CERCA: 'Vivo cerca',
+  TRABAJO_CERCA: 'Trabajo cerca',
+  TRANSITO_FRECUENTE: 'Tránsito frecuente',
+  TENGO_EV: 'Tengo un vehículo eléctrico',
+  CONSIDERARIA_EV_CON_CARGA: 'Consideraría un vehículo eléctrico con carga',
+  OTRO: 'Otro',
 }
 
 export const ROL_LABELS: Record<RolGobierno, string> = {
