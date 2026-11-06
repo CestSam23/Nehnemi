@@ -1,8 +1,12 @@
 import { Outlet } from 'react-router'
+import { LilitioMensaje } from '@/components/feedback/LilitioMensaje'
 import { Header } from '@/components/layout/Header'
 import { Sidebar } from '@/components/layout/Sidebar'
+import { useLilitioMensaje } from '@/hooks/useLilitioMensaje'
 
 export default function AppShell() {
+  const lilitio = useLilitioMensaje()
+
   return (
     <div className="min-h-svh bg-background">
       <Header />
@@ -12,6 +16,14 @@ export default function AppShell() {
           <Outlet />
         </div>
       </main>
+      {lilitio.mensaje && lilitio.estado && (
+        <LilitioMensaje
+          estado={lilitio.estado}
+          mensaje={lilitio.mensaje}
+          visible={lilitio.visible}
+          onCerrar={lilitio.cerrar}
+        />
+      )}
     </div>
   )
 }

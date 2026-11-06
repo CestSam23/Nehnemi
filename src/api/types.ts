@@ -77,7 +77,7 @@ export type IniciarSesionRespuesta = UsuarioGobierno
 
 export type SesionRespuesta = UsuarioGobierno
 
-export type DimensionPanorama = {
+export type DimensionDisponibilidad = {
   disponible: boolean
   motivo?: string
 }
@@ -90,7 +90,9 @@ export type DistribucionDimension = {
 
 export type PuntoVentasEv = {
   periodo: string
-  valor: number
+  vehiculos: number
+  unidad: string
+  fuente: string
 }
 
 export type VentasEv = {
@@ -112,6 +114,18 @@ export type ZonaPrioritaria = {
   creado_en: string
 }
 
+export type IndicadorEvidencia = {
+  nivel: NivelIndicador | null
+  puntuacion: number | null
+}
+
+export type IndicadoresEvidencia = Partial<
+  Record<DimensionIndicador, IndicadorEvidencia>
+>
+
+export type ValorEvidencia =
+  string | number | boolean | null | IndicadoresEvidencia
+
 export type RecomendacionZona = {
   id: number
   barrera_principal: TipoBarreraDiagnosticada
@@ -119,7 +133,7 @@ export type RecomendacionZona = {
   prioridad: PrioridadRecomendacion
   confianza: NivelConfianza
   razones: string[]
-  evidencia: Record<string, string | number | boolean | null>
+  evidencia: Record<string, ValorEvidencia>
   version_reglas: string
   creado_en: string
 }
@@ -154,7 +168,7 @@ export type PanoramaRespuesta = {
   ventas_ev: VentasEv
   zonas_prioritarias: ZonaPrioritaria[]
   fuentes_documentadas: number
-  dimensiones: Record<DimensionIndicador, DimensionPanorama>
+  dimensiones: Record<DimensionIndicador, DimensionDisponibilidad>
 }
 
 export type ZonaListado = {

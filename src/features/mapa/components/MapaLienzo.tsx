@@ -16,13 +16,22 @@ import type {
 import { Button } from '@/components/ui/button'
 import { formatearEntero, formatearPuntuacion } from '@/lib/format'
 import { NIVELES, nivelVisual, type NivelVisual } from '@/lib/levels'
+import { cn } from '@/lib/utils'
 import { limitesDe, type Limites } from '../geometria'
 import {
+  ANCHO_BORDE,
+  CAPA_ETIQUETAS,
+  CENTRO_INICIAL,
   FILTRO_SIN_DATOS,
   IMAGEN_SIN_DATOS,
-  crearEstilo,
+  OPACIDAD_BORDE,
+  OPACIDAD_RELLENO,
+  RADIO_ESTACION,
+  RADIO_HALO_ESTACION,
+  ZOOM_INICIAL,
   crearPatronSinDatos,
   expresionRelleno,
+  getEstiloMapa,
   leerPaleta,
 } from '../mapaEstilo'
 
@@ -34,8 +43,6 @@ type ZonaBajoCursor = {
   x: number
   y: number
 }
-
-const ANCHO_BORDE = 0.6
 
 function ControlesZoom({ limites }: { limites: Limites }) {
   const { current: mapa } = useMap()
@@ -92,7 +99,8 @@ export function MapaLienzo({
   const [patronListo, setPatronListo] = useState(false)
 
   const paleta = useMemo(() => leerPaleta(), [])
-  const estilo = useMemo(() => crearEstilo(paleta), [paleta])
+  const estilo = useMemo(() => getEstiloMapa(paleta), [paleta])
+
   const limites = useMemo(() => limitesDe(datos.features), [datos.features])
 
   const puntosEstaciones = useMemo(
@@ -147,22 +155,22 @@ export function MapaLienzo({
   }
 
   return (
-    <div className="relative size-full overflow-hidden rounded-[12px] bg-card">
+    <div className="relative size-full overflow-hidden rounded-[12px] bg-map-fondo">
       <MapaGL
         mapStyle={estilo}
         initialViewState={{
-          bounds: limites,
-          fitBoundsOptions: { padding: 24 },
+          longitude: CENTRO_INICIAL[0],
+          latitude: CENTRO_INICIAL[1],
+          zoom: ZOOM_INICIAL,
         }}
         style={{ width: '100%', height: '100%' }}
-        attributionControl={false}
+        attributionControl={{ compact: true }}
         dragRotate={false}
         maxPitch={0}
         interactiveLayerIds={['zonas-relleno', 'zonas-sin-datos']}
         cursor={bajoCursor ? 'pointer' : 'grab'}
         onLoad={(evento) => {
           evento.target.resize()
-          evento.target.fitBounds(limites, { padding: 24, duration: 0 })
           const imagen = crearPatronSinDatos(paleta)
           if (!imagen) return
           evento.target.addImage(IMAGEN_SIN_DATOS, imagen)
@@ -176,73 +184,119 @@ export function MapaLienzo({
           <Layer
             id="zonas-relleno"
             type="fill"
-            paint={{ 'fill-color': expresionRelleno(paleta) }}
+            beforeId={CAPA_ETIQUETAS}
+            paint={{
+              'fill-color': expresionRelleno(paleta),
+              'fill-color-transition': { duration: 450 },
+              'fill-opacity': OPACIDAD_RELLENO,
+            }}
           />
           {patronListo && (
             <Layer
               id="zonas-sin-datos"
               type="fill"
+              beforeId={CAPA_ETIQUETAS}
               filter={FILTRO_SIN_DATOS}
-              paint={{ 'fill-pattern': IMAGEN_SIN_DATOS }}
+              paint={{
+                'fill-pattern': IMAGEN_SIN_DATOS,
+                'fill-opacity': OPACIDAD_RELLENO,
+              }}
             />
           )}
           <Layer
+            id="zonas-hover-relleno"
+            type="fill"
+            beforeId={CAPA_ETIQUETAS}
+            filter={['==', ['get', 'clave'], bajoCursor?.clave ?? '']}
+            paint={{ 'fill-color': paleta.fondo, 'fill-opacity': 0.25 }}
+          />
+          <Layer
             id="zonas-borde"
             type="line"
+            beforeId={CAPA_ETIQUETAS}
             paint={{
               'line-color': paleta.borde,
               'line-width': ANCHO_BORDE,
+              'line-opacity': OPACIDAD_BORDE,
             }}
           />
           <Layer
             id="zonas-hover"
             type="line"
+            beforeId={CAPA_ETIQUETAS}
             filter={['==', ['get', 'clave'], bajoCursor?.clave ?? '']}
+            layout={{ 'line-join': 'round' }}
+            paint={{
+              'line-color': paleta.fondo,
+              'line-width': 2.5,
+              'line-opacity': 1,
+            }}
+          />
+          <Layer
+            id="zonas-seleccion-halo"
+            type="line"
+            beforeId={CAPA_ETIQUETAS}
+            filter={['==', ['get', 'clave'], claveSeleccionada ?? '']}
+            layout={{ 'line-join': 'round' }}
             paint={{
               'line-color': paleta.seleccion,
-              'line-width': 2,
-              'line-opacity': 0.7,
+              'line-width': 7,
+              'line-blur': 1,
             }}
           />
           <Layer
             id="zonas-seleccion"
             type="line"
+            beforeId={CAPA_ETIQUETAS}
             filter={['==', ['get', 'clave'], claveSeleccionada ?? '']}
-            paint={{ 'line-color': paleta.seleccion, 'line-width': 4 }}
+            layout={{ 'line-join': 'round' }}
+            paint={{ 'line-color': paleta.fondo, 'line-width': 2.5 }}
           />
         </Source>
         {estaciones && (
           <Source id="estaciones" type="geojson" data={puntosEstaciones}>
             <Layer
+              id="estaciones-halo"
+              type="circle"
+              paint={{
+                'circle-radius': RADIO_HALO_ESTACION,
+                'circle-color': paleta.estacion,
+                'circle-opacity': 0.3,
+                'circle-blur': 0.6,
+              }}
+            />
+            <Layer
               id="estaciones-puntos"
               type="circle"
               paint={{
-                'circle-radius': 3.5,
+                'circle-radius': RADIO_ESTACION,
                 'circle-color': paleta.estacion,
                 'circle-stroke-color': paleta.estacionBorde,
-                'circle-stroke-width': 1,
+                'circle-stroke-width': 1.5,
               }}
             />
           </Source>
         )}
         <ControlesZoom limites={limites} />
       </MapaGL>
-      <div className="pointer-events-none absolute top-4 left-4 flex flex-col items-start gap-1">
-        <p className="rounded-[8px] bg-card/95 px-3 py-2 text-[11px] font-medium text-muted-foreground shadow-xs backdrop-blur-sm">
-          <span className="font-bold text-primary">CDMX</span> ·{' '}
-          {formatearEntero(datos.features.length)}{' '}
-          {datos.features[0]?.properties.tipo === 'AGEB' ? 'AGEB' : 'alcaldías'}
-        </p>
-        {estaciones && (
-          <p className="flex items-center gap-2 rounded-sm bg-accent px-2.5 py-1 text-[11px] font-medium text-primary shadow-xs">
-            <span className="size-1.5 rounded-full bg-success" />
-            {formatearEntero(estaciones.length)} estaciones en el mapa
+      <div className="pointer-events-none absolute top-4 left-4 flex flex-col items-start gap-2">
+        <div className="rounded-md bg-card/90 px-4 py-3 shadow-md backdrop-blur-md">
+          <p className="font-serif text-xl leading-6 font-semibold text-primary">
+            Ciudad de México
           </p>
-        )}
+          <p className="text-xs text-muted-foreground">
+            {formatearEntero(datos.features.length)}{' '}
+            {datos.features[0]?.properties.tipo === 'AGEB'
+              ? 'AGEB'
+              : 'alcaldías'}
+            {estaciones &&
+              ` y ${formatearEntero(estaciones.length)} estaciones de carga`}
+          </p>
+        </div>
         {actualizando && (
           <p
             role="status"
-            className="flex items-center gap-2 rounded-sm bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground shadow-xs"
+            className="flex items-center gap-2 rounded-full bg-card/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-md"
           >
             <LoaderCircle className="size-3 animate-spin" aria-hidden />
             Actualizando mapa
@@ -251,15 +305,26 @@ export function MapaLienzo({
       </div>
       {bajoCursor && (
         <div
-          className="pointer-events-none absolute z-10 flex flex-col gap-0.5 rounded-sm bg-primary px-2 py-1.5 text-primary-foreground shadow-md"
+          className="pointer-events-none absolute z-10 flex min-w-40 flex-col gap-1 rounded-md bg-primary px-3 py-2 text-primary-foreground shadow-lg"
           style={{ left: bajoCursor.x + 14, top: bajoCursor.y + 14 }}
         >
-          <span className="text-[11px] font-bold">{bajoCursor.nombre}</span>
-          <span className="text-[11px] font-medium">
-            {bajoCursor.puntuacion === null
-              ? 'Sin evidencia suficiente'
-              : `${NIVELES[bajoCursor.nivel].etiqueta} · ${formatearPuntuacion(bajoCursor.puntuacion)}`}
-          </span>
+          <span className="text-xs font-bold">{bajoCursor.nombre}</span>
+          {bajoCursor.puntuacion === null ? (
+            <span className="text-xs">Sin evidencia suficiente</span>
+          ) : (
+            <span className="flex items-center gap-2 text-xs">
+              <span
+                className={cn(
+                  'size-2.5 rounded-full ring-1 ring-primary-foreground/60',
+                  NIVELES[bajoCursor.nivel].punto,
+                )}
+              />
+              {NIVELES[bajoCursor.nivel].etiqueta}
+              <span className="ml-auto font-bold">
+                {formatearPuntuacion(bajoCursor.puntuacion)}
+              </span>
+            </span>
+          )}
         </div>
       )}
     </div>

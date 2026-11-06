@@ -28,11 +28,10 @@ export default function MapaPage() {
         onEstaciones={filtros.cambiarEstaciones}
         errorEstaciones={estaciones.isError}
       />
-      <MapaLeyenda dimension={filtros.dimension} />
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_19.5rem]">
         <section
           aria-label="Mapa de zonas"
-          className="h-[520px] rounded-[16px] border bg-card p-4 shadow-xs lg:h-[730px]"
+          className="relative h-[520px] rounded-[16px] border bg-card p-2 shadow-xs lg:h-[730px]"
         >
           {mapa.isPending ? (
             <MapaSkeleton />
@@ -49,13 +48,16 @@ export default function MapaPage() {
               className="h-full justify-center"
             />
           ) : (
-            <MapaLienzo
-              datos={mapa.data}
-              claveSeleccionada={filtros.zona}
-              onSeleccionar={filtros.seleccionarZona}
-              estaciones={filtros.estaciones ? estaciones.data : undefined}
-              actualizando={mapa.isPlaceholderData}
-            />
+            <>
+              <MapaLienzo
+                datos={mapa.data}
+                claveSeleccionada={filtros.zona}
+                onSeleccionar={filtros.seleccionarZona}
+                estaciones={filtros.estaciones ? estaciones.data : undefined}
+                actualizando={mapa.isPlaceholderData}
+              />
+              <MapaLeyenda dimension={filtros.dimension} />
+            </>
           )}
         </section>
         <aside

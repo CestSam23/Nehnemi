@@ -48,6 +48,7 @@
   --color-map-baja: var(--map-baja);
   --color-map-media: var(--map-media);
   --color-map-alta: var(--map-alta);
+  --color-map-fondo: var(--map-fondo);
   --color-map-sin-datos: var(--map-sin-datos);
   --color-map-sin-datos-trazo: var(--map-sin-datos-trazo);
 }
@@ -84,12 +85,20 @@
   --lima-soft: #d9f99a;
   --error-surface: #fcece9;
   --error-text: #a12f36;
-  --map-muy-baja: #ede5f3;
-  --map-baja: #c4b5d0;
-  --map-media: #7a539b;
-  --map-alta: #39214f;
+  --map-fondo: #e7e1d3;
+  --map-muy-baja: #e4d6ee;
+  --map-baja: #b9a0d1;
+  --map-media: #8656b0;
+  --map-alta: #2f1744;
   --map-sin-datos: #dfd8df;
   --map-sin-datos-trazo: #7c757e;
+  --map-agua: #b8dcef;
+  --map-agua-brillo: #d3ecf8;
+  --map-parque: #cfe8b0;
+  --map-calle: #fffcf5;
+  --map-calle-borde: #e3dac5;
+  --map-edificio: #ddd4c1;
+  --map-texto: #5a4a6b;
 }
 
 @layer base {
